@@ -2,10 +2,10 @@ use color_eyre::Result;
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use ratatui::{
     layout::{Constraint, Layout, Rect},
-    style::{Style, Stylize},
+    style::{Color, Style, Stylize},
     symbols,
     text::Line,
-    widgets::{Axis, Block, Chart, Dataset, GraphType, Paragraph, Row, Table},
+    widgets::{Axis, Block, Chart, Dataset, GraphType, Paragraph, Row, Table, TableState},
     DefaultTerminal, Frame,
 };
 use sysinfo::ProcessesToUpdate;
@@ -16,6 +16,7 @@ pub struct App {
     running: bool,
     system: sysinfo::System,
     cpu: Vec<(f64, f64)>,
+    table_state: TableState,
 }
 
 impl App {
@@ -25,12 +26,14 @@ impl App {
             running: true,
             system: sysinfo::System::new_all(),
             cpu: vec![],
+            table_state: TableState::default(),
         }
     }
 
     /// Run the application's main loop.
     pub fn run(mut self, mut terminal: DefaultTerminal) -> Result<()> {
         self.running = true;
+        self.table_state.select(Some(0));
         while self.running {
             terminal.draw(|frame| {
                 if frame.count() % 60 == 0 {
@@ -114,10 +117,12 @@ impl App {
                 Constraint::Fill(1),
             ],
         )
+        .row_highlight_style(Style::default().bg(Color::DarkGray))
+        .highlight_symbol(">>")
         .block(Block::bordered().title("Processes"))
         .header(Row::new(vec!["PID", "Name", "CPU"]).style(Style::default().bold()));
 
-        frame.render_widget(table, area);
+        frame.render_stateful_widget(table, area, &mut self.table_state);
     }
 
     /// Reads the crossterm events and updates the state of [`App`].
@@ -142,6 +147,13 @@ impl App {
         match (key.modifiers, key.code) {
             (_, KeyCode::Esc | KeyCode::Char('q'))
             | (KeyModifiers::CONTROL, KeyCode::Char('c') | KeyCode::Char('C')) => self.quit(),
+
+            (_, KeyCode::Char('j')) => {
+                self.table_state.select_next();
+            }
+            (_, KeyCode::Char('k')) => {
+                self.table_state.select_previous();
+            }
             // Add other key handlers here.
             _ => {}
         }
