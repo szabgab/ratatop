@@ -5,7 +5,7 @@ use ratatui::{
     style::{Color, Style, Stylize},
     symbols,
     text::Line,
-    widgets::{Axis, Block, Chart, Dataset, GraphType, Paragraph, Row, Table, TableState},
+    widgets::{Axis, Block, Chart, Clear, Dataset, GraphType, Paragraph, Row, Table, TableState},
     DefaultTerminal, Frame,
 };
 use sysinfo::ProcessesToUpdate;
@@ -104,7 +104,7 @@ impl App {
         self.render_processes(frame, third);
 
         if self.search {
-            self.render_search(frame, right);
+            self.render_search(frame, third);
         }
     }
 
@@ -140,7 +140,14 @@ impl App {
     }
 
     fn render_search(&mut self, frame: &mut Frame<'_>, area: Rect) {
-        frame.render_widget(&self.textarea, area);
+        let search_area = Rect {
+            x: area.x + 1,
+            y: area.y + 1,
+            width: area.width - 2,
+            height: 3,
+        };
+        frame.render_widget(Clear, search_area);
+        frame.render_widget(&self.textarea, search_area);
     }
 
     /// Reads the crossterm events and updates the state of [`App`].
