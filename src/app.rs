@@ -1,6 +1,7 @@
 use color_eyre::Result;
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use ratatui::{
+    layout::{Constraint, Layout},
     style::Stylize,
     text::Line,
     widgets::{Block, Paragraph},
@@ -35,19 +36,23 @@ impl App {
     /// - <https://docs.rs/ratatui/latest/ratatui/widgets/index.html>
     /// - <https://github.com/ratatui/ratatui/tree/master/examples>
     fn draw(&mut self, frame: &mut Frame) {
-        let title = Line::from("Ratatui Simple Template")
-            .bold()
-            .blue()
-            .centered();
-        let text = "Hello, Ratatui!\n\n\
-            Created using https://github.com/ratatui/templates\n\
-            Press `Esc`, `Ctrl-C` or `q` to stop running.";
-        frame.render_widget(
-            Paragraph::new(text)
-                .block(Block::bordered().title(title))
-                .centered(),
-            frame.area(),
-        )
+        let [first, second, third] = Layout::vertical([
+            Constraint::Percentage((25)),
+            Constraint::Fill((1)),
+            Constraint::Fill((1)),
+        ]).areas(frame.area());
+
+        let [left, right] = Layout::horizontal([
+            Constraint::Percentage((50)),
+            Constraint::Percentage((50)),
+        ]).areas(second);
+  
+        frame.render_widget(Block::bordered(), left);
+        frame.render_widget(Block::bordered(), right);
+
+        frame.render_widget(Block::bordered(), first);
+        //frame.render_widget(Block::bordered(), second);
+        frame.render_widget(Block::bordered(), third);
     }
 
     /// Reads the crossterm events and updates the state of [`App`].
