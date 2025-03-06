@@ -48,7 +48,7 @@ impl App {
     /// - <https://docs.rs/ratatui/latest/ratatui/widgets/index.html>
     /// - <https://github.com/ratatui/ratatui/tree/master/examples>
     fn draw(&mut self, frame: &mut Frame) {
-        let [first, second, third] = Layout::vertical([
+        let [top, second, third] = Layout::vertical([
             Constraint::Percentage((25)),
             Constraint::Fill((1)),
             Constraint::Fill((1)),
@@ -75,7 +75,7 @@ impl App {
             .bounds([0f64, 100f64])
             .style(Style::default().cyan());
         let chart = Chart::new(datasets)
-            .block(Block::new().title("Chart"))
+            .block(Block::bordered().title("CPU"))
             .x_axis(x_axis)
             .y_axis(y_axis);
 
@@ -84,7 +84,7 @@ impl App {
         frame.render_widget(Block::bordered(), right);
 
 
-        frame.render_widget(chart, first);
+        frame.render_widget(chart, top);
         //frame.render_widget(Block::bordered(), second);
         frame.render_widget(Block::bordered(), third);
     }
