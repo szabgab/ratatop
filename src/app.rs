@@ -31,6 +31,7 @@ impl App {
     pub fn run(mut self, mut terminal: DefaultTerminal) -> Result<()> {
         self.running = true;
         while self.running {
+            self.system.refresh_cpu_all();
             terminal.draw(|frame| {
                 self.cpu
                     .push((frame.count() as f64, self.system.global_cpu_usage() as f64));
@@ -62,8 +63,8 @@ impl App {
             // Scatter chart
             Dataset::default()
                 .name("data1")
-                .marker(symbols::Marker::Dot)
-                .graph_type(GraphType::Scatter)
+                .marker(symbols::Marker::Braille)
+                .graph_type(GraphType::Line)
                 .style(Style::default().cyan())
                 .data(&self.cpu),
         ];
@@ -93,12 +94,14 @@ impl App {
     /// If your application needs to perform work in between handling events, you can use the
     /// [`event::poll`] function to check if there are any events available with a timeout.
     fn handle_crossterm_events(&mut self) -> Result<()> {
-        match event::read()? {
-            // it's important to check KeyEventKind::Press to avoid handling key release events
-            Event::Key(key) if key.kind == KeyEventKind::Press => self.on_key_event(key),
-            Event::Mouse(_) => {}
-            Event::Resize(_, _) => {}
-            _ => {}
+        if event::poll(std::time::Duration::from_millis(16))? {
+            match event::read()? {
+                // it's important to check KeyEventKind::Press to avoid handling key release events
+                Event::Key(key) if key.kind == KeyEventKind::Press => self.on_key_event(key),
+                Event::Mouse(_) => {}
+                Event::Resize(_, _) => {}
+                _ => {}
+            }             
         }
         Ok(())
     }
