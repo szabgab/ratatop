@@ -123,6 +123,12 @@ impl App {
             b.partial_cmp(&a).unwrap()
         });
 
+        let text = self.textarea.lines().first().unwrap();
+        rows.retain(|row| {
+            row.iter()
+                .any(|cell| cell.to_lowercase().contains(&text.to_lowercase()))
+        });
+
         let table = Table::new(
             rows.into_iter().map(Row::new).collect::<Vec<Row>>(),
             [
