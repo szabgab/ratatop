@@ -9,9 +9,17 @@ updates:
   - package-ecosystem: "cargo"
     directory: "/" # Location of package manifests
     schedule:
-      interval: "weekly"
+      interval: monthly
+    groups:
+      rust:
+        patterns:
+          - "*"
   # Maintain dependencies for GitHub Actions
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
-      interval: weekly
+      interval: monthly
+    groups:
+      github-actions:
+        patterns:
+          - "*"
